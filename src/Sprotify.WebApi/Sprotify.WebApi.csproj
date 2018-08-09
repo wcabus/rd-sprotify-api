@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sprotify.Application\Sprotify.Application.csproj" />
     <ProjectReference Include="..\Sprotify.Data.EF\Sprotify.Data.EF.csproj" />
+    <ProjectReference Include="..\Sprotify.Domain\Sprotify.Domain.csproj" />
   </ItemGroup>
 
 </Project>
