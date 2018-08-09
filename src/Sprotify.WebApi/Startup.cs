@@ -11,7 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Sprotify.Application.Artists;
 using Sprotify.Data.EF;
+using Sprotify.Domain.Services;
 
 namespace Sprotify.WebApi
 {
@@ -29,6 +31,8 @@ namespace Sprotify.WebApi
         {
             var connectionString = Configuration.GetConnectionString("SprotifyDb");
             services.AddDbContext<SprotifyDbContext>(x => x.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
+
+            services.AddScoped<IArtistService, ArtistService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
