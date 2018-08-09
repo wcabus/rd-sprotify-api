@@ -13,6 +13,8 @@ namespace Sprotify.Domain.Services
         Task DeleteArtist(Artist artist);
 
         Task<bool> ArtistExists(Guid artistId);
+        Task<bool> AlbumExists(Guid artistId, Guid albumId);
+
         Task<List<Album>> GetArtistAlbums(Guid artistId, bool includeSongs);
         Task<Album> GetArtistAlbumById(Guid artistId, Guid albumId, bool includeSongs);
     }
