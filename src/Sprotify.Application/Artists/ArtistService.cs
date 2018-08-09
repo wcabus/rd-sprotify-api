@@ -17,9 +17,9 @@ namespace Sprotify.Application.Artists
             _context = context;
         }
 
-        public async Task<List<Artist>> GetArtists()
+        public Task<List<Artist>> GetArtists()
         {
-            return await _context.Set<Artist>().ToListAsync(); //.ConfigureAwait(false);
+            return _context.Set<Artist>().ToListAsync();
         }
 
         public Task<Artist> GetArtistById(Guid id)
