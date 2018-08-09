@@ -16,10 +16,12 @@ namespace Sprotify.WebApi.Controllers
     public class ArtistsController : ControllerBase
     {
         private readonly IArtistService _service;
+        private readonly IAlbumService _albumService;
 
-        public ArtistsController(IArtistService service)
+        public ArtistsController(IArtistService service, IAlbumService albumService)
         {
             _service = service;
+            _albumService = albumService;
         }
 
         [HttpGet]
@@ -140,6 +142,19 @@ namespace Sprotify.WebApi.Controllers
 
             var album = await _service.GetArtistAlbumById(artistId, albumId, false);
             return album;
+        }
+
+        [HttpPost("{artistId:guid}/albums")]
+        public async Task<ActionResult<Album>> CreateArtistAlbum(Guid artistId, AlbumToCreate model)
+        {
+            var artist = await _service.GetArtistById(artistId);
+            if (artist == null)
+            {
+                return NotFound();
+            }
+
+            var album = await _albumService.CreateAlbum(model.Title, model.ImageUri, model.Remarks, artist);
+            return CreatedAtRoute(nameof(GetArtistAlbumById), new { artistId, albumId = album.Id }, album);
         }
     }
 }
