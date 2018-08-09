@@ -54,6 +54,11 @@ namespace Sprotify.Application.Artists
             return _context.Set<Artist>().AnyAsync(x => x.Id == artistId);
         }
 
+        public Task<bool> AlbumExists(Guid artistId, Guid albumId)
+        {
+            return _context.Set<Album>().AnyAsync(x => x.ArtistId == artistId && x.Id == albumId);
+        }
+
         public Task<List<Album>> GetArtistAlbums(Guid artistId, bool includeSongs)
         {
             var query = _context.Set<Album>()
