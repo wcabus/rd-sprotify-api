@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Sprotify.Domain;
 using Sprotify.Domain.Services;
@@ -72,6 +73,30 @@ namespace Sprotify.WebApi.Controllers
             }
 
             await _service.DeleteSong(song);
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> PatchSong(Guid id, JsonPatchDocument<SongToUpdate> patchDocument)
+        {
+            var song = await _service.GetSongById(id);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            var model = new SongToUpdate(song);
+            patchDocument.ApplyTo(model);
+
+            TryValidateModel(model);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            model.ApplyTo(song);
+            await _service.UpdateSong(song);
+
             return NoContent();
         }
     }
