@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Sprotify.Application.Artists;
+using Sprotify.Application.Songs;
 using Sprotify.Data.EF;
 using Sprotify.Domain.Services;
 
@@ -33,6 +34,7 @@ namespace Sprotify.WebApi
             services.AddDbContext<SprotifyDbContext>(x => x.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
 
             services.AddScoped<IArtistService, ArtistService>();
+            services.AddScoped<ISongService, SongService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
