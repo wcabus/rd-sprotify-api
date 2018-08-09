@@ -113,7 +113,7 @@ namespace Sprotify.WebApi.Controllers
             return NoContent();
         }
 
-        [HttpGet("{id:guid}/albums")]
+        [HttpGet("{artistId:guid}/albums")]
         public async Task<ActionResult<List<Album>>> GetArtistAlbums(Guid artistId)
         {
             if (! await _service.ArtistExists(artistId))
@@ -128,6 +128,18 @@ namespace Sprotify.WebApi.Controllers
             }
 
             return albums;
+        }
+
+        [HttpGet("{artistId:guid}/albums/{albumId:guid}", Name = nameof(GetArtistAlbumById))]
+        public async Task<ActionResult<Album>> GetArtistAlbumById(Guid artistId, Guid albumId)
+        {
+            if (!await _service.ArtistExists(artistId) || !await _service.AlbumExists(artistId, albumId))
+            {
+                return NotFound();
+            }
+
+            var album = await _service.GetArtistAlbumById(artistId, albumId, false);
+            return album;
         }
     }
 }
