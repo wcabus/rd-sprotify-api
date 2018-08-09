@@ -11,5 +11,8 @@ namespace Sprotify.Domain.Services
         Task<Artist> CreateArtist(string name, string imageUri);
         Task UpdateArtist(Artist artist);
         Task DeleteArtist(Artist artist);
+
+        Task<List<Album>> GetArtistAlbums(Guid artistId, bool includeSongs);
+        Task<Album> GetArtistAlbumById(Guid artistId, Guid albumId, bool includeSongs);
     }
 }

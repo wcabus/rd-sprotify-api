@@ -4,6 +4,7 @@ using Sprotify.Domain;
 using Sprotify.Domain.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sprotify.Application.Artists
@@ -46,6 +47,34 @@ namespace Sprotify.Application.Artists
         {
             _context.Remove(artist);
             return _context.SaveChangesAsync();
+        }
+
+        public Task<List<Album>> GetArtistAlbums(Guid artistId, bool includeSongs)
+        {
+            var query = _context.Set<Album>()
+                .Where(x => x.ArtistId == artistId)
+                .AsQueryable();
+
+            if (includeSongs)
+            {
+                query = query.Include(x => x.Songs.Select(s => s.Song.Artists));
+            }
+
+            return query.ToListAsync();
+        }
+
+        public Task<Album> GetArtistAlbumById(Guid artistId, Guid albumId, bool includeSongs)
+        {
+            var query = _context.Set<Album>()
+                .Where(x => x.ArtistId == artistId && x.Id == albumId)
+                .AsQueryable();
+
+            if (includeSongs)
+            {
+                query = query.Include(x => x.Songs.Select(s => s.Song.Artists));
+            }
+
+            return query.SingleOrDefaultAsync();
         }
     }
 }
