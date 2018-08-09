@@ -112,5 +112,22 @@ namespace Sprotify.WebApi.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("{id:guid}/albums")]
+        public async Task<ActionResult<List<Album>>> GetArtistAlbums(Guid artistId)
+        {
+            if (! await _service.ArtistExists(artistId))
+            {
+                return NotFound();
+            }
+
+            var albums = await _service.GetArtistAlbums(artistId, false);
+            if (albums?.Any() != true)
+            {
+                return NoContent();
+            }
+
+            return albums;
+        }
     }
 }
