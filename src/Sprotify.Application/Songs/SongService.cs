@@ -57,9 +57,23 @@ namespace Sprotify.Application.Songs
             return _context.SaveChangesAsync();
         }
 
+        public Task<bool> SongExists(Guid songId)
+        {
+            return _context.Set<Song>().AnyAsync(x => x.Id == songId);
+        }
+
         public Task<bool> HasArtist(Guid songId, Guid artistId)
         {
             return _context.Set<SongArtist>().AnyAsync(x => x.SongId == songId && x.ArtistId == artistId);
+        }
+
+        public Task<List<Artist>> GetSongArtists(Guid songId)
+        {
+            return _context.Set<SongArtist>()
+                .Where(x => x.SongId == songId)
+                .Include(x => x.Artist)
+                .Select(x => x.Artist)
+                .ToListAsync();
         }
 
         public Task AddArtist(Song song, Artist artist)
