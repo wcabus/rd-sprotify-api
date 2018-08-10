@@ -12,7 +12,10 @@ namespace Sprotify.Domain.Services
         Task UpdateSong(Song song);
         Task DeleteSong(Song song);
 
-        Task<bool> Task<bool> HasArtist(Guid songId, Guid artistId);
+        Task<bool> SongExists(Guid songId);
+        Task<bool> HasArtist(Guid songId, Guid artistId);
+
+        Task<List<Artist>> GetSongArtists(Guid songId);
         Task AddArtist(Song song, Artist artist);
         Task RemoveArtist(Song song, Artist artist);
     }
