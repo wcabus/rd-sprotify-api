@@ -4,6 +4,7 @@ using Sprotify.Domain;
 using Sprotify.Domain.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,6 +55,43 @@ namespace Sprotify.Application.Songs
         {
             _context.Remove(song);
             return _context.SaveChangesAsync();
+        }
+
+        public Task<bool> HasArtist(Guid songId, Guid artistId)
+        {
+            return _context.Set<SongArtist>().AnyAsync(x => x.SongId == songId && x.ArtistId == artistId);
+        }
+
+        public Task AddArtist(Song song, Artist artist)
+        {
+            // Check: do we need to load artists first?
+            song.Artists.Add(new SongArtist { Artist = artist, Song = song });
+
+            return _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveArtist(Song song, Artist artist)
+        {
+            await LoadArtists(song);
+            var songArtist = song.Artists.Where(x => x.ArtistId == artist.Id).SingleOrDefault();
+            if (songArtist == null)
+            {
+                return;
+            }
+
+            song.Artists.Remove(songArtist);
+            await UpdateSong(song);
+        }
+
+        private Task LoadArtists(Song song)
+        {
+            var songEntity = _context.Entry(song);
+            if (!songEntity.Collection(x => x.Artists).IsLoaded)
+            {
+                return songEntity.Collection(x => x.Artists).LoadAsync();
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
