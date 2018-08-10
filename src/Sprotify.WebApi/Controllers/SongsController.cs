@@ -99,5 +99,22 @@ namespace Sprotify.WebApi.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("{songId:guid}/artists")]
+        public async Task<ActionResult<List<Artist>>> GetSongArtists(Guid songId)
+        {
+            if (!await _service.SongExists(songId))
+            {
+                return NotFound();
+            }
+
+            var artists = await _service.GetSongArtists(songId);
+            if (artists?.Any() != true)
+            {
+                return NoContent();
+            }
+
+            return artists;
+        }
     }
 }
