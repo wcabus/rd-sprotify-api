@@ -8,6 +8,7 @@ namespace Sprotify.Domain.Services
     {
         Task<List<Song>> GetSongs();
         Task<Song> GetSongById(Guid id);
+        Task<Song> GetSongById(Guid id, bool includeArtists);
         Task<Song> CreateSong(string title, TimeSpan duration, DateTime? releaseDate, bool explicitLyrics);
         Task UpdateSong(Song song);
         Task DeleteSong(Song song);
@@ -16,6 +17,7 @@ namespace Sprotify.Domain.Services
         Task<bool> HasArtist(Guid songId, Guid artistId);
 
         Task<List<Artist>> GetSongArtists(Guid songId);
+        Task<Artist> GetSongArtistById(Guid songId, Guid artistId);
         Task AddArtist(Song song, Artist artist);
         Task RemoveArtist(Song song, Artist artist);
     }

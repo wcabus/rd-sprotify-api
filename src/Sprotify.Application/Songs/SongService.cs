@@ -5,7 +5,6 @@ using Sprotify.Domain.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sprotify.Application.Songs
@@ -27,6 +26,18 @@ namespace Sprotify.Application.Songs
         public Task<Song> GetSongById(Guid id)
         {
             return _context.Set<Song>().SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public Task<Song> GetSongById(Guid id, bool includeArtists)
+        {
+            var query = _context.Set<Song>().AsQueryable();
+
+            if (includeArtists)
+            {
+                query = query.Include(x => x.Artists);
+            }
+                
+            return query.SingleOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Song> CreateSong(string title, TimeSpan duration, DateTime? releaseDate, bool explicitLyrics)
@@ -76,9 +87,17 @@ namespace Sprotify.Application.Songs
                 .ToListAsync();
         }
 
+        public Task<Artist> GetSongArtistById(Guid songId, Guid artistId)
+        {
+            return _context.Set<SongArtist>()
+                .Where(x => x.SongId == songId && x.ArtistId == artistId)
+                .Include(x => x.Artist)
+                .Select(x => x.Artist)
+                .SingleOrDefaultAsync();
+        }
+
         public Task AddArtist(Song song, Artist artist)
         {
-            // Check: do we need to load artists first?
             song.Artists.Add(new SongArtist { Artist = artist, Song = song });
 
             return _context.SaveChangesAsync();

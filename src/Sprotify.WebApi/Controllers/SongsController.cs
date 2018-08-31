@@ -17,10 +17,12 @@ namespace Sprotify.WebApi.Controllers
     public class SongsController : Controller
     {
         private readonly ISongService _service;
+        private readonly IArtistService _artistService;
 
-        public SongsController(ISongService service)
+        public SongsController(ISongService service, IArtistService artistService)
         {
             _service = service;
+            _artistService = artistService;
         }
 
         [HttpGet]
@@ -115,6 +117,44 @@ namespace Sprotify.WebApi.Controllers
             }
 
             return artists;
+        }
+
+        [HttpGet("{songId:guid}/artists/{artistId:guid}", Name = nameof(GetSongArtistById))]
+        public async Task<ActionResult<Artist>> GetSongArtistById(Guid songId, Guid artistId)
+        {
+            if (!await _service.SongExists(songId) || !await _service.HasArtist(songId, artistId))
+            {
+                return NotFound();
+            }
+
+            var artist = await _service.GetSongArtistById(songId, artistId);
+            return artist;
+        }
+
+        [HttpPost("{songId:guid}/artists")]
+        public async Task<ActionResult<Artist>> AddExistingArtistToSong(Guid songId, ExistingArtistToAdd model)
+        {
+            var song = await _service.GetSongById(songId);
+            if (song == null)
+            {
+                return NotFound();
+            }
+
+            var artist = await _artistService.GetArtistById(model.ArtistId);
+            if (artist == null)
+            {
+                ModelState.AddModelError(nameof(model.ArtistId), "The specified artist does not exist.");
+                return BadRequest(ModelState);
+            }
+
+            if (await _service.HasArtist(songId, model.ArtistId))
+            {
+                // Returns 200 OK with requested artist, showing the client that artist was already added.
+                return Ok(artist);
+            }
+
+            await _service.AddArtist(song, artist);
+            return CreatedAtRoute(nameof(GetSongArtistById), new { songId, artistId = model.ArtistId }, artist);
         }
     }
 }
