@@ -170,5 +170,20 @@ namespace Sprotify.WebApi.Controllers
             await _service.AddArtist(song, artist);
             return CreatedAtRoute(nameof(GetSongArtistById), new { songId, artistId = artist.Id }, artist);
         }
+
+        [HttpDelete("{songId:guid}/artists/{artistId:guid}")]
+        public async Task<IActionResult> RemoveArtistFromSongById(Guid songId, Guid artistId)
+        {
+            if (!await _service.SongExists(songId) || !await _service.HasArtist(songId, artistId))
+            {
+                return NotFound();
+            }
+
+            var song = await _service.GetSongById(songId);
+            var artist = await _artistService.GetArtistById(artistId);
+
+            await _service.RemoveArtist(song, artist);
+            return NoContent();
+        }
     }
 }
