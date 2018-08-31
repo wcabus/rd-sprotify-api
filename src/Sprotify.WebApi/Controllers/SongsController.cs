@@ -132,7 +132,7 @@ namespace Sprotify.WebApi.Controllers
         }
 
         [HttpPost("{songId:guid}/artists")]
-        public async Task<ActionResult<Artist>> AddExistingArtistToSong(Guid songId, ExistingArtistToAdd model)
+        public async Task<ActionResult<Artist>> AddArtistToSong(Guid songId, ArtistToAdd model)
         {
             var song = await _service.GetSongById(songId);
             if (song == null)
@@ -140,21 +140,35 @@ namespace Sprotify.WebApi.Controllers
                 return NotFound();
             }
 
-            var artist = await _artistService.GetArtistById(model.ArtistId);
-            if (artist == null)
+            if (model.ArtistId == Guid.Empty && string.IsNullOrEmpty(model.Name))
             {
-                ModelState.AddModelError(nameof(model.ArtistId), "The specified artist does not exist.");
+                ModelState.AddModelError("", "Either provide an existing artist ID, or provide the name of a new artist.");
                 return BadRequest(ModelState);
             }
 
-            if (await _service.HasArtist(songId, model.ArtistId))
+            Artist artist = null;
+            if (model.ArtistId != Guid.Empty)
             {
-                // Returns 200 OK with requested artist, showing the client that artist was already added.
-                return Ok(artist);
+                artist = await _artistService.GetArtistById(model.ArtistId);
+                if (artist == null)
+                {
+                    ModelState.AddModelError(nameof(model.ArtistId), "The specified artist does not exist.");
+                    return BadRequest(ModelState);
+                }
+
+                if (await _service.HasArtist(songId, model.ArtistId))
+                {
+                    // Returns 200 OK with requested artist, showing the client that artist was already added.
+                    return Ok(artist);
+                }
+            }
+            else
+            {
+                artist = await _artistService.CreateArtist(model.Name, model.ImageUri);
             }
 
             await _service.AddArtist(song, artist);
-            return CreatedAtRoute(nameof(GetSongArtistById), new { songId, artistId = model.ArtistId }, artist);
+            return CreatedAtRoute(nameof(GetSongArtistById), new { songId, artistId = artist.Id }, artist);
         }
     }
 }
