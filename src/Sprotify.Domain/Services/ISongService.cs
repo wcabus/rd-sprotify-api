@@ -11,5 +11,9 @@ namespace Sprotify.Domain.Services
         Task<Song> CreateSong(string title, TimeSpan duration, DateTime? releaseDate, bool explicitLyrics);
         Task UpdateSong(Song song);
         Task DeleteSong(Song song);
+
+        Task<bool> HasArtist(Guid songId, Guid artistId);
+        Task AddArtist(Song song, Artist artist);
+        Task RemoveArtist(Song song, Artist artist);
     }
 }
